@@ -1,0 +1,17 @@
+require("UserConfigs.ENVariables")
+require("UserConfigs.UserDefaults")
+require("UserConfigs.Decorations")
+require("UserConfigs.Animations")
+require("UserConfigs.Keybinds")
+require("UserConfigs.StartupApps")
+require("UserConfigs.Laptops")
+require("UserConfigs.SystemSettings")
+require("Monitors")
+require("Workspaces")
+
+hl.bind({
+	"switch:on:Lid Switch",
+	function()
+		hl.exec_cmd("hyprlock")
+	end,
+})
