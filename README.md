@@ -20,6 +20,8 @@ This project is based on **JaKooLit/Hyprland-Dots**, which provided the foundati
 I have substantially modified the original configuration, including custom Lua configuration, keybindings, window rules, animations, scripts, and other personal customizations.
 
 *Original project*: [JaKooLit/Hyprland-Dots](https://github.com/JaKooLit/Hyprland-Dots)
+
 *Original author*: JaKooLit
+
 *License*: See the original project's license and the applicable license included in this repository.
 
