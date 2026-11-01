@@ -1,4 +1,4 @@
-local defaults = require(UserDefaults)
+local defaults = require("UserConfigs.UserDefaults")
 
 hl.bind("XF86KbdBrightnessDown", hl.dsp.exec_cmd(defaults.scriptsDir .. "/BrightnessKbd.sh --dec"))
 hl.bind("XF86KbdBrightnessUp", hl.dsp.exec_cmd(defaults.scriptsDir .. "/BrightnessKbd.sh --inc"))
@@ -20,8 +20,8 @@ local Touchpad_Device = "asue1209:00-04f3:319f-touchpad"
 
 local TOUCHPAD_ENABLED = true
 hl.device({
-  name = Touchpad_Device,
-  enabled = TOUCHPAD_ENABLED,
+	name = Touchpad_Device,
+	enabled = TOUCHPAD_ENABLED,
 })
 
 -- These configs are mostly for laptops. This is addemdum to Keybinds.conf

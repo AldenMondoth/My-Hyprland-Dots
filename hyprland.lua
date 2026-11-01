@@ -9,9 +9,6 @@ require("UserConfigs.SystemSettings")
 require("Monitors")
 require("Workspaces")
 
-hl.bind({
-	"switch:on:Lid Switch",
-	function()
-		hl.exec_cmd("hyprlock")
-	end,
-})
+hl.bind("switch:on:Lid Switch", function()
+	hl.exec_cmd("hyprlock")
+end)

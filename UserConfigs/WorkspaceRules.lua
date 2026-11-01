@@ -1,3 +1,4 @@
+--[[
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  #
 
 # NOTE: THIS IS NOT BEING SOURCED by hyprland
@@ -6,7 +7,7 @@
 # Since that is the work space rules being sourced by hyprland
 # use nwg-displays to handle your workspace rules.
 
-# You can set workspace rules to achieve workspace-specific behaviors. 
+# You can set workspace rules to achieve workspace-specific behaviors.
 # For instance, you can define a workspace where all windows are drawn without borders or gaps.
 
 # https://wiki.hyprland.org/Configuring/Workspace-Rules/
@@ -30,3 +31,8 @@
 # workspace = name:gaming, monitor:desc:Chimei Innolux Corporation 0x150C, default:true
 # workspace = 5, on-created-empty:[float] firefox
 # workspace = special:scratchpad, on-created-empty:foot
+
+
+]]
+--
+

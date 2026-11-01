@@ -1,4 +1,4 @@
-local defaults = require("UserDefaults")
+local defaults = require("UserConfigs.UserDefaults")
 
 local function run_script(name)
 	return dofile(defaults.scriptsDir .. "/" .. name .. ".lua")
@@ -15,12 +15,7 @@ hl.bind("SUPER + B", hl.dsp.exec_cmd("xdg-open 'https://'"), { description = "op
 hl.bind("SUPER + A", hl.dsp.exec_cmd(defaults.scriptsDir .. "/OverviewToggle.sh"), { description = "desktop overview" }) -- toggles quickshell or ags overview (tries QS first, falls back to AGS)
 hl.bind("SUPER + Return", hl.dsp.exec_cmd(defaults.term), { description = "Open Terminal" })
 
-hl.bind("SUPER + Return", hl.dsp.exec_cmd(defaults.files), { description = "Open Terminal" })
-hl.bind(
-	"SUPER + T",
-	hl.dsp.exec_cmd(defaults.scriptsDir .. "/ThemeChanger.sh"),
-	{ description = "Wallust Global Theme Switcher" }
-)
+hl.bind("SUPER + T", hl.dsp.exec_cmd(defaults.files), { description = "Open Terminal" })
 
 hl.bind("SUPER + H", hl.dsp.exec_cmd(defaults.scriptsDir .. "/KeyHints.sh"), { description = "cheat sheet" })
 hl.bind(
@@ -59,8 +54,8 @@ hl.bind(
 	{ description = "rofi theme selector (modified)" }
 )
 
-hl.bind("SUPER + SHIFT + F", hl.dsp.fullscreen(), { description = "fullscreen" })
-hl.bind("SUPER + CTRL + F", hl.dsp.fullscreen(1), { description = "maximize windows" })
+hl.bind("SUPER + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }), { description = "fullscreen" })
+hl.bind("SUPER + CTRL + F", hl.dsp.window.fullscreen({ mode = "maximized" }), { description = "maximize windows" })
 hl.bind("SUPER + SPACE", hl.dsp.window.float({ action = "toggle" }), { description = "float active window" })
 hl.bind(
 	"SUPER + ALT + SPACE",
@@ -178,12 +173,8 @@ hl.bind(
 )
 
 hl.bind("CTRL + ALT + Delete", hl.dsp.exec_cmd(" hyprctl dispatch exit 0"), { description = "exit Hyprland" })
-hl.bind("SUPER + Q", hl.dsp.window.kill(), { description = "close active window" })
-hl.bind(
-	"SUPER + SHIFT + Q",
-	hl.dsp.exec_cmd(defaults.scriptsDir .. "/KillActiveProcess.sh"),
-	{ description = "terminate active process" }
-)
+hl.bind("SUPER + Q", hl.dsp.window.close(), { description = "close active window" })
+hl.bind("SUPER + SHIFT + Q", hl.dsp.window.kill(), { description = "terminate active process" })
 hl.bind("CTRL + ALT + L", hl.dsp.exec_cmd(defaults.scriptsDir .. "/LockScreen.sh"), { description = "lock screen" })
 hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(defaults.scriptsDir .. "/Wlogout.sh"), { description = "power menu" })
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("swaync-client -t -sw"), { description = "notification panel" })
@@ -236,7 +227,7 @@ hl.bind(
 )
 hl.bind(
 	"ALT + XF86AudioLowerVolume",
-	hl.dsp.exec_cmd(default.scriptsDir .. "/Volume.sh --dec-precise"),
+	hl.dsp.exec_cmd(defaults.scriptsDir .. "/Volume.sh --dec-precise"),
 	{ description = "volume down precise" }
 )
 hl.bind(
@@ -249,11 +240,6 @@ hl.bind("XF86Sleep", hl.dsp.exec_cmd("systemctl suspend"), { description = "slee
 hl.bind("XF86RfKill", hl.dsp.exec_cmd(defaults.scriptsDir .. "/AirplaneMode.sh"), { description = "airplane mode" })
 
 -- Media Controls
-hl.bind(
-	"XF86AudioPlayPause",
-	hl.dsp.exec_cmd(defaults.scriptsDir .. "/MediaCtrl.sh --pause"),
-	{ description = "play/pause" }
-)
 hl.bind("XF86AudioPause", hl.dsp.exec_cmd(defaults.scriptsDir .. "/MediaCtrl.sh -- pause"), { description = "pause" })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(defaults.scriptsDir .. "/MediaCtrl.sh --pause"), { description = "play" })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd(defaults.scriptsDir .. "/MediaCtrl.sh --nxt"), { description = "next track" })
@@ -333,7 +319,7 @@ hl.bind(
 	{ description = "move to special workspace" }
 )
 
-hl.bind("SUPER + U", hl.dsp.toggle_special(), { description = "Toggle special workspace" })
+hl.bind("SUPER + U", hl.dsp.workspace.toggle_special(), { description = "Toggle special workspace" })
 
 -- =========================================================
 -- Switch workspaces: SUPER + 1–0
@@ -342,7 +328,7 @@ hl.bind("SUPER + U", hl.dsp.toggle_special(), { description = "Toggle special wo
 for workspace = 1, 10 do
 	local key = tostring(workspace % 10)
 
-	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = tostring(workspace) }), {
+	hl.bind("SUPER + " .. key, hl.dsp.focus({ workspace = tostring(workspace) }), {
 		description = "Switch to workspace " .. workspace,
 	})
 end
@@ -354,18 +340,18 @@ end
 for workspace = 1, 10 do
 	local key = tostring(workspace % 10)
 
-	hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace " .. workspace), {
+	hl.bind("SUPER + SHIFT + " .. key, hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace " .. workspace), {
 		description = "Move window to workspace " .. workspace,
 	})
 end
 
 -- Move to previous workspace
-hl.bind(mainMod .. " + SHIFT + bracketleft", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace -1"), {
+hl.bind("SUPER + SHIFT + bracketleft", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace -1"), {
 	description = "Move window to previous workspace",
 })
 
 -- Move to next workspace
-hl.bind(mainMod .. " + SHIFT + bracketright", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace +1"), {
+hl.bind("SUPER + SHIFT + bracketright", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace +1"), {
 	description = "Move window to next workspace",
 })
 
@@ -403,12 +389,12 @@ hl.bind("SUPER + comma", hl.dsp.focus({ workspace = "e-1" }), {
 	description = "Previous workspace",
 })
 
-hl.bind("SUPER + mouse:272", hl.dsp.window.move(), {
-	description = "Move window",
+hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), {
 	mouse = true,
+	description = "Move window",
 })
 
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), {
-	description = "Resize window",
 	mouse = true,
+	description = "Resize window",
 })

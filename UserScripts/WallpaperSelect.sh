@@ -6,7 +6,7 @@
 terminal=kitty
 PICTURES_DIR="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")"
 wallDIR="$PICTURES_DIR/wallpapers"
-SCRIPTSDIR="$HOME/.config/hypr/scripts"
+SCRIPTSDIR="$HOME/.config/hypr/UserScripts"
 wallpaper_current="$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
 
 # Directory for swaync
@@ -18,7 +18,12 @@ FPS=60
 TYPE="any"
 DURATION=2
 BEZIER=".43,1.19,1,.4"
-SWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION --transition-bezier $BEZIER"
+AWWW_PARAMS=(
+  --transition-fps "$FPS" 
+  --transition-type "$TYPE" 
+  --transition-duration "$DURATION" 
+  --transition-bezier "$BEZIER"
+)
 
 # Check if package bc exists
 if ! command -v bc &>/dev/null; then
@@ -50,6 +55,7 @@ kill_wallpaper_for_video() {
   pkill mpvpaper 2>/dev/null
   pkill swaybg 2>/dev/null
   pkill hyprpaper 2>/dev/null
+  awww kill 2>/dev/null
 }
 
 # Kill existing wallpaper daemons for image
@@ -100,50 +106,54 @@ menu() {
 }
 
 
-modify_startup_config() {
-  local selected_file="$1"
-  local startup_config="$HOME/.config/hypr/UserConfigs/StartupApps.lua"
-
-  # Check if it's a live wallpaper (video)
-  if [[ "$selected_file" =~ \.(mp4|mkv|mov|webm)$ ]]; then
-    # For video wallpapers:
-    sed -i '/^\s*exec-once\s*=\s*swww-daemon\s*--format\s*xrgb\s*$/s/^/\#/' "$startup_config"
-    sed -i '/^\s*#\s*exec-once\s*=\s*mpvpaper\s*.*$/s/^#\s*//;' "$startup_config"
-
-    # Update the livewallpaper variable with the selected video path (using $HOME)
-    selected_file="${selected_file/#$HOME/\$HOME}" # Replace /home/user with $HOME
-    sed -i "s|^\$livewallpaper=.*|\$livewallpaper=\"$selected_file\"|" "$startup_config"
-
-    echo "Configured for live wallpaper (video)."
-  else
-    # For image wallpapers:
-    sed -i '/^\s*#\s*exec-once\s*=\s*swww-daemon\s*--format\s*xrgb\s*$/s/^\s*#\s*//;' "$startup_config"
-
-    sed -i '/^\s*exec-once\s*=\s*mpvpaper\s*.*$/s/^/\#/' "$startup_config"
-
-    echo "Configured for static wallpaper (image)."
-  fi
-}
 
 # Apply Image Wallpaper
 apply_image_wallpaper() {
-  local image_path="$1"
+    local image_path="$1"
 
-  kill_wallpaper_for_image
+    # Stop competing wallpaper programs, but keep awww running.
+    pkill mpvpaper 2>/dev/null || true
+    pkill swaybg 2>/dev/null || true
+    pkill hyprpaper 2>/dev/null || true
 
-  if ! pgrep -x "swww-daemon" >/dev/null; then
-    echo "Starting swww-daemon..."
-    swww-daemon --format xrgb &
-  fi
+    # Ensure the selected file exists.
+    if [[ ! -f "$image_path" ]]; then
+        echo "ERROR: Wallpaper file does not exist: $image_path" >&2
+        return 1
+    fi
 
-  swww img -o "$focused_monitor" "$image_path" $SWWW_PARAMS
+    # Ensure awww-daemon is running with the required pixel format.
+    if ! awww query >/dev/null 2>&1; then
+        echo "Starting awww-daemon..."
+        awww-daemon --format xrgb &
 
-  # Run additional scripts (pass the image path to avoid cache race conditions)
-  "$SCRIPTSDIR/WallustSwww.sh" "$image_path"
-  sleep 2
-  "$SCRIPTSDIR/Refresh.sh"
-  sleep 1
+        for _ in {1..50}; do
+            awww query >/dev/null 2>&1 && break
+            sleep 0.1
+        done
 
+        if ! awww query >/dev/null 2>&1; then
+            echo "ERROR: awww-daemon failed to start." >&2
+            return 1
+        fi
+    fi
+
+    echo "Applying wallpaper: $image_path"
+    echo "Focused monitor: $focused_monitor"
+
+    # Use the same basic command that you verified works.
+    if ! awww img \
+        --transition-type simple \
+        "$image_path"; then
+        echo "ERROR: awww failed to apply the wallpaper." >&2
+        return 1
+    fi
+
+    # Update Wallust colors.
+    "$SCRIPTSDIR/WallustSwww.sh" "$image_path"
+
+    sleep 2
+    "$SCRIPTSDIR/Refresh.sh"
 }
 
 apply_video_wallpaper() {
@@ -185,9 +195,6 @@ main() {
     echo "File not found. Selected choice: $choice"
     exit 1
   fi
-
-  # Modify the StartupApps.lua file based on wallpaper type
-  modify_startup_config "$selected_file"
 
   # **CHECK FIRST** if it's a video or an image **before calling any function**
   if [[ "$selected_file" =~ \.(mp4|mkv|mov|webm|MP4|MKV|MOV|WEBM)$ ]]; then

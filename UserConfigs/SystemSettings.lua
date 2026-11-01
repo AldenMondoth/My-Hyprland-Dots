@@ -1,4 +1,4 @@
-local defaults = require(UserDefaults)
+local defaults = require("UserConfigs.UserDefaults")
 
 -- LAYOUT SETTINGS
 
@@ -43,8 +43,26 @@ hl.workspace_rule({
 -- General Layout -> Monocle
 hl.config({
 	general = {
-		-- resize_on_border = true,
-		layout = "monocle",
+		border_size = 1,
+		gaps_in = 5,
+		gaps_out = 15,
+		--[[
+		col = {
+			active_border = defaults.colors.foreground,
+			inactive_border = (function()
+				local filtered = {}
+				for key, value in pairs(defaults.colors) do
+					if key ~= "background" and "foreground" then
+						table.insert(filtered, value)
+					end
+				end
+				return { colors = filtered }
+			end)(),
+		},]]
+		--
+		resize_on_border = true,
+		extend_border_grab_area = 10,
+		layout = "dwindle",
 	},
 })
 
@@ -133,21 +151,24 @@ hl.gesture({
 	direction = "down",
 	action = function()
 		hl.exec_cmd([[
-    hyprctl keyword cursor:zoom_factor "$(
-      hyprctl getoption cursor:zoom_factor |
-      awk 'NR==1 {
-        factor = $2;
-        if (factor < 1) {factor = 1};
-        print factor / 1.5}')"
-    ]])
+            hyprctl keyword cursor:zoom_factor "$(
+                hyprctl getoption cursor:zoom_factor |
+                awk 'NR==1 {
+                    factor = $2;
+                    if (factor < 1) factor = 1;
+                    print factor / 1.5
+                }'
+            )"
+        ]])
 	end,
 })
-
 -- three finger swipe up: toggle overview
 hl.gesture({
 	fingers = 3,
 	direction = "up",
-	action = hl.exec_cmd(defaults.scriptsDir .. "/OverviewToggle.sh"),
+	action = function()
+		hl.exec_cmd(defaults.scriptsDir .. "/OverviewToggle.sh")
+	end,
 })
 
 -- MISC SETTINGS
@@ -156,7 +177,7 @@ hl.config({
 	misc = {
 		disable_hyprland_logo = true,
 		disable_splash_rendering = true,
-		vfr = true,
+		-- vfr = true,
 		vrr = 2,
 		mouse_move_enables_dpms = true,
 		enable_swallow = false,

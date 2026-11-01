@@ -1,8 +1,9 @@
 local home = os.getenv("HOME")
-
+local themed_colors = require("wallust.wallust-hyprland")
 local defaults = {
 
 	editor = os.getenv("EDITOR") or "nano",
+	colors = themed_colors,
 
 	term = "kitty",
 	files = "thunar",
