@@ -143,7 +143,7 @@ apply_image_wallpaper() {
 
     # Use the same basic command that you verified works.
     if ! awww img \
-        --transition-type simple \
+        --transition-type random \
         "$image_path"; then
         echo "ERROR: awww failed to apply the wallpaper." >&2
         return 1
