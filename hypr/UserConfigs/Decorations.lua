@@ -23,8 +23,34 @@ hl.config({
 			color_inactive = colors.color10,
 		},
 
+		wobble = {
+			enabled = true,
+			mesh = 32,
+			stiffness = 700,
+			damping = 35,
+		},
 		blur = {
 			enabled = true,
+			variant = "haze",
+
+			haze = {
+				intensity = 1.0,
+				iridescence = 1.0,
+			},
+
+			-- variant = "acrylic",
+
+			acrylic = {
+				aberration = 0.25,
+				bulb = 128.0,
+				clarity = 1.0,
+				refraction = 48.0,
+			},
+
+			heat_shimmer = {
+				speed = 2.0,
+
+			},
 			size = 5,
 			passes = 3,
 			new_optimizations = true,
@@ -35,7 +61,7 @@ hl.config({
 		},
 
 		motion_blur = {
-			enabled = true,
+			enabled = false,
 			samples = 7,
 		},
 	},

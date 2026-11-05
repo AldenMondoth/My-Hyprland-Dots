@@ -6,6 +6,8 @@ require("UserConfigs.Keybinds")
 require("UserConfigs.StartupApps")
 require("UserConfigs.Laptops")
 require("UserConfigs.SystemSettings")
+require("UserConfigs.WindowRules")
+require("UserConfigs.WorkspaceRules")
 require("Monitors")
 require("Workspaces")
 

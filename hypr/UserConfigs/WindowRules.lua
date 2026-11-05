@@ -56,7 +56,7 @@ hl.window_rule({
 })
 
 -- email tags
-hl.windowrule({
+hl.window_rule({
 	match = {
 		class = "^(eu.betterbird.Betterbird)$",
 	},
@@ -73,7 +73,7 @@ hl.window_rule({
 -- project tags
 hl.window_rule({
 	match = {
-		class("^(codium|codium-url-handler|VSCodium)$"),
+		class = "^(codium|codium-url-handler|VSCodium)$",
 	},
 	tag = "+projects",
 })
@@ -352,7 +352,7 @@ hl.window_rule({
 })
 
 -- Some special override rules
-hl.windowrule({
+hl.window_rule({
 	match = {
 		tag = "multimedia_video",
 	},
@@ -449,7 +449,7 @@ hl.window_rule({
 	float = true,
 })
 
-hl.windowrule({
+hl.window_rule({
 	match = {
 		class = "(org.gnome.Calculator|qalculate-gtk)",
 	},
@@ -486,7 +486,7 @@ hl.window_rule({
 	center = true,
 })
 
-hl.windowrule({
+hl.window_rule({
 	match = {
 		class = "(codium|codium-url-handler|VSCodium)",
 		title = "negative:(.*codium.*|.*VSCodium.*)",
@@ -538,10 +538,10 @@ hl.window_rule({
 		initial_title = "Open Files",
 	},
 	float = true,
-	size({
+	size = {
 		"monitor_w*0.7",
 		"monitor_h*0.6",
-	}),
+	},
 })
 
 hl.window_rule({
@@ -558,7 +558,7 @@ hl.window_rule({
 
 hl.window_rule({
 	match = {
-		class("^(yad)$"),
+		class = "^(yad)$",
 	},
 	float = true,
 	center = true,
@@ -570,7 +570,7 @@ hl.window_rule({
 
 hl.window_rule({
 	match = {
-		class("^(hyprland-donate-screen)$"),
+		class = "^(hyprland-donate-screen)$",
 	},
 	float = true,
 	center = true,
@@ -605,7 +605,7 @@ hl.window_rule({
 	opacity = "0.94 0.86",
 })
 
-hl.windowrule({
+hl.window_rule({
 	match = {
 		tag = "file-manager",
 	},
@@ -740,9 +740,24 @@ hl.layer_rule({
 
 hl.layer_rule({
 	match = {
-		namespace = "notifications",
+		namespace = "swaync-notification-window",
 	},
 	blur = true,
+	blur_popups = true,
+	ignore_alpha = 0.7,
+	xray = false,
+	animation = "slide top",
+})
+
+hl.layer_rule({
+	match = {
+		namespace = "swaync-control-center",
+	},
+	blur = true,
+	blur_popups = true,
+	ignore_alpha = 0.7,
+	xray = false,
+	animation = "slide top",
 })
 
 hl.layer_rule({
