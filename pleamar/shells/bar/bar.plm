@@ -1,0 +1,15 @@
+language 0.1
+scene Bar {
+    surface { size: full, 40; anchor: top }
+    let ink = #f5f7f5
+
+    prop hot = 0 ~quick
+
+    box { from: 0, 0; size: 1920, 40; color: #151616 }
+    box { at: 60, 20; size: 90 + hot * 30, 26; corner: 13; color: mix(#2b2d2d, #9ed6bd, hot) }
+    text "hello" { at: 60, 20; anchor: center; size: 12.5; color: mix(ink, #10221b, hot) }
+
+    zone box pill { at: 60, 20; size: 120, 30; corner: 15; cursor: pointer }
+    on enter pill { hot: 1 }
+    on leave pill { hot: 0 }
+}

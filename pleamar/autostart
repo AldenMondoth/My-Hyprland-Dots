@@ -1,0 +1,5 @@
+# What starts with the desktop, one command a line, run with `sh -c`:
+# `pleamar --autostart` starts it all (on Hyprland: `exec-once = pleamar --autostart`).
+# Your scenes (bars, widgets, apps) go in ~/.config/pleamar/shells.
+#
+pleamar --scene ~/.config/pleamar/shells/button/button.plm --no-hud

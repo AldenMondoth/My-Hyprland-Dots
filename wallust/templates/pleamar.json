@@ -1,0 +1,6 @@
+{
+  "background": "{{background | strip}}",
+  "foreground": "{{foreground | strip}}",
+  "accent": "{{color4 | strip}}",
+  "secondary": "{{color5 | strip}}"
+}

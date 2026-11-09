@@ -1,0 +1,404 @@
+
+language 0.9
+
+scene Button {
+
+    permissions {
+services: "files", "clock", "notifications"
+    }
+
+    service clock as now { time: text = "--:--"; date: text }
+
+
+    model notices max 10 {
+        id: number
+        app: text
+        title: text
+        body: text
+    }
+
+    // event notification_arrived ->
+    service notifications { list: notices }
+
+
+    //wallust colors
+    fact bg_r = 0
+        fact bg_g = 0
+        fact bg_b = 0
+
+        fact fg_r = 1
+        fact fg_g = 1
+        fact fg_b = 1
+
+        fact accent_r = 0
+        fact accent_g = 0
+        fact accent_b = 0
+
+        fact secondary_r = 0
+        fact secondary_g = 0
+        fact secondary_b = 0
+
+        let background = rgb(bg_r, bg_g, bg_b)
+        let foreground = rgb(fg_r, fg_g, fg_b)
+        let accent = rgb(accent_r, accent_g, accent_b)
+        let secondary = rgb(secondary_r, secondary_g, secondary_b)
+
+        //menu 
+        fact menu_open = false
+        fact left_selection = 0
+        fact right_selection = 0
+        fact left_cursor = 0
+        fact right_cursor = 0
+
+        fact active_menu = 0 // 0 = left,1 = right
+
+        //spring used with hyprland animations
+        spring mine = 700, 35
+        prop hot = 0 ~mine
+        fact hovering = false
+
+        fact notice_at: number = -100000
+        prop notification_bump = 0 ~mine
+
+        on change notices.0.id {
+            notice_at = time
+            menu_open = false
+        }
+
+        on still notice_at for 2s while hovering {
+            menu_open = true
+        }
+
+    follow notification_bump = if(time - notice_at < 2, 1, 0)
+
+        follow hot = if(menu_open, 1, 0)
+
+        //box {
+        //    at: 150, 10
+        //    size: 170 + hot * 20, 20 + hot * 50
+        //    corner: 14
+        //    color: mix(background, foreground, hot)
+        //}
+
+        // universal size and coordinate declarations to work for any monitor
+        let w = round(screen.width / 8.5)
+        let h = round(screen.height / 50)
+        let center_x = round(screen.width / 2)
+
+        let speed = round(w / 6)
+
+        let notice_extra_w = round(w * 0.7)
+        let notice_extra_h = round(h * 1.5)
+
+        let expanded_w = w - hot * speed + notification_bump* notice_extra_w
+        let expanded_h = h + hot * speed + notification_bump * notice_extra_h
+
+        let button_x = center_x - expanded_w / 2
+
+        let time_gap_right = center_x + expanded_w / 2 - round(w / 5)
+        let time_gap_left = center_x - expanded_w / 2 + round(w / 6)
+
+        let date_gap_right = center_x + expanded_w / 2 - round(w / 4)
+        let date_gap_left = center_x - expanded_w / 2 + round(w / 4)
+
+
+        //interface
+        surface {
+        size: full, full
+        keyboard: on_demand while menu_open
+        anchor: top
+        }
+
+        // bar with rounded bottom corners
+        path {
+            at: button_x, 0
+            size: expanded_w, expanded_h
+            color: mix(#000000, foreground, hot)
+            glass: 0% + hot * 10%
+            // tint: 30%
+
+        move 0, 0
+        line expanded_w, 0
+        line expanded_w, expanded_h - 14
+        curve expanded_w - 14, expanded_h via expanded_w, expanded_h
+        line 14, expanded_h
+
+        curve 0, expanded_h - 14 via 0, expanded_h
+        close
+        }
+
+    // cursor hover zone
+    zone path button {
+        at: button_x - 8, -8
+        size: expanded_w + 16, expanded_h + 8
+
+        move 0, 0
+        line expanded_w + 16, 0
+        line expanded_w + 16, expanded_h - 14 + 8
+        curve expanded_w - 14 + 16, expanded_h + 8 via expanded_w + 16, expanded_h + 8
+        line 14, expanded_h + 8
+        curve 0, expanded_h - 14 + 8 via 0, expanded_h + 8
+        close
+
+        cursor: pointer
+    }
+
+    column notice_list {
+        at: button_x, 0
+        gap: 4
+        show: time - notice_at < 2
+
+
+        text notices.0.title {
+            // at: 0, 0
+            size: 16
+            family: "Adwaita Mono"
+            weight: 600
+            color: accent
+            opacity: 100% - notification_bump * 10%
+            width: expanded_w
+            align: center
+            lines: 1
+        }
+        text notices.0.body{
+            at: 0, 5
+            size: 14
+            family: "Adwaita Mono"
+            color: foreground
+            opacity: 100% - notification_bump * 25%
+            width: expanded_w
+            align: center
+            lines: 2
+        }
+    }
+
+    //expand on hover
+    on enter button { hovering = true; menu_open = time - notice_at >= 2}
+
+    on leave button { hovering = false; menu_open = false}
+
+
+    let menu_x = center_x - 180
+        let menu_y = expanded_h + 8
+
+
+        // ============================================================
+        // FIXED CENTER SELECTION BANDS
+        // ============================================================
+
+        box {
+        at: center_x - 50, 36
+        size: 75, 20
+        corner: 6
+        color: background
+        opacity: 44% - active_menu * 22%
+        show: menu_open
+
+        }
+
+        box {
+        at: center_x + 50, 36
+        size: 75, 20
+        corner: 6
+        color: background
+        opacity: 22% + active_menu * 22%
+        show: menu_open
+
+        }
+
+    // ============================================================
+    // PRIMARY / LEFT PICKER
+    // ============================================================
+
+let menu_gap = 20
+
+column left_options {
+    at: center_x - 87.5, 3
+    view: 75, h + speed
+    step: menu_gap
+    gap: 0
+    show: menu_open
+
+    // size_ y = (view_y - step) / 2 
+    // Padding lets the first and last choices sit in the center of the viewport.
+    group { size: 75,  (h + speed - menu_gap) / 2}
+
+    repeat i in 0..6 {
+        group {
+            show: i != right_selection
+            size: 75, menu_gap
+
+            zone box left_option.$i {
+                at: 37.5, menu_gap / 2
+                size: 75, menu_gap
+                cursor: pointer
+            }
+
+            text pick(i, "Clock", "Date", "Weather", "Battery", "Workspace", "Volume") {
+                at: 37.5, menu_gap / 2
+                anchor: center
+                size: 12
+                family: "Adwaita Mono"
+                color: background
+                opacity: if(
+                    i == left_cursor,
+                    1,
+                    if(abs(i - left_cursor) == 1, 0.75, 0.1)
+                )
+            }
+
+            on press left_option.$i {
+                active_menu = 0
+                left_selection = i
+                left_cursor = i
+                left_options.scroll: i * menu_gap ~mine
+            }
+        }
+    }
+
+    group { size: 75, (h + speed - menu_gap) / 2 }
+}
+
+    // ============================================================
+    // SECONDARY / RIGHT PICKER
+    // ============================================================
+
+column right_options {
+    at: center_x + 12.5, 3
+    view: 75, h + speed
+    step: menu_gap
+    gap: 0
+    show: menu_open
+
+
+    // size_ y = (view_y - step) / 2 
+    // Padding lets the first and last choices sit in the center of the viewport.
+    group { size: 75,  (h + speed - menu_gap) / 2}
+
+    repeat i in 0..6 {
+        group {
+            show: i != left_selection
+            size: 75, menu_gap
+
+            zone box right_option.$i {
+                at: 37.5, menu_gap / 2
+                size: 75, menu_gap
+                cursor: pointer
+            }
+
+            text pick(i, "Clock", "Date", "Weather", "Battery", "Workspace", "Volume") {
+                at: 37.5, menu_gap / 2
+                anchor: center
+                size: 12
+                family: "Adwaita Mono"
+                color: background
+                opacity: if(
+                    i == right_cursor,
+                    1,
+                    if(abs(i - right_cursor) == 1, 0.75, 0.1)
+                )
+            }
+
+            on press right_option.$i {
+                active_menu = 1
+                right_selection = i
+                right_cursor = i
+                right_options.scroll: i * menu_gap ~mine
+            }
+        }
+    }
+
+    group { size: 75, (h + speed - menu_gap) / 2 }
+}
+
+
+on change round(left_options.scroll / menu_gap) {
+    left_cursor = clamp(round(left_options.scroll / menu_gap), 0, if(right_selection >= 0, 4, 5)) + if(right_selection >= 0 and round(left_options.scroll / menu_gap) >= right_selection, 1, 0)
+}
+
+on still left_options.scroll for 120ms {
+    left_options.scroll: clamp(round(left_options.scroll / menu_gap), 0, if(right_selection >= 0, 4, 5)) * menu_gap ~mine
+}
+
+on enter left_options { active_menu = 0}
+
+on change round(right_options.scroll / menu_gap) {
+    right_cursor = clamp(round(right_options.scroll / menu_gap), 0, if(left_selection >= 0, 4, 5)) + if(left_selection >= 0 and round(right_options.scroll / menu_gap) >= left_selection, 1, 0)
+}
+
+on still right_options.scroll for 120ms {
+    right_options.scroll: clamp(round(right_options.scroll / menu_gap), 0, if(left_selection >= 0, 4, 5)) * menu_gap ~mine
+}
+    
+on enter right_options { active_menu = 1}
+
+on key Left while active_menu == 1 { active_menu = 0}
+on key Right while active_menu == 0 { active_menu = 1}
+
+on key Up while active_menu == 0 {
+    left_options.scroll: max(round(left_options.scroll / menu_gap) - 1, 0) * menu_gap ~mine
+}
+
+on key Down while active_menu == 0 {
+    left_options.scroll: min( round(left_options.scroll / menu_gap) + 1, if(right_selection >= 0, 4, 5)) * menu_gap ~mine
+}
+
+on key Up while active_menu == 1 {
+    right_options.scroll: max(round(right_options.scroll / menu_gap) - 1, 0) * menu_gap ~mine
+}
+
+on key Down while active_menu == 1 {
+    right_options.scroll: min( round(right_options.scroll / menu_gap) + 1, if(left_selection >= 0, 4, 5) ) * menu_gap ~mine
+}
+
+on key Enter while active_menu == 0 {
+    left_selection = left_cursor
+}
+
+on key Enter while active_menu == 1 {
+    right_selection = right_cursor
+}
+
+    //date and time in bar
+    text now.time { 
+at: time_gap_left, 12
+        anchor: center
+        size: 15
+        family: "Adwaita Mono"
+        color: foreground
+        show: not menu_open and left_selection == 0 
+        // opacity: 100% - hot* 100%
+    }
+    text now.date { 
+at: date_gap_left, 12
+        anchor: center
+        size: 15
+        family: "Adwaita Mono"
+        color: foreground
+        show: not menu_open and left_selection == 1
+        //opacity: 100% - hot * 100%
+    }
+text now.time { 
+at: time_gap_right, 12
+        anchor: center
+        size: 15
+        family: "Adwaita Mono"
+        color: foreground
+        show: not menu_open and right_selection == 0
+        // opacity: 100% - hot* 100%
+    }
+    text now.date { 
+at: date_gap_right, 12
+        anchor: center
+        size: 15
+        family: "Adwaita Mono"
+        color: foreground
+        show: not menu_open and right_selection == 1
+        //opacity: 100% - hot * 100%
+    }
+
+    on press right button {
+
+    }
+}
+

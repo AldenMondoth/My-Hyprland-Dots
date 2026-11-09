@@ -16,7 +16,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("rog-control-center")
 	hl.exec_cmd("blueman-applet")
-	hl.exec_cmd("ags")
+	--hl.exec_cmd("ags")
 	hl.exec_cmd(defaults.scriptsDir .. "/KeyBindsLayoutInit.sh")
 end)
 
